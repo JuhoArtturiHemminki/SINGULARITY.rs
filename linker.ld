@@ -9,19 +9,31 @@ MEMORY
 SECTIONS
 {
     .boot : {
+        . = ALIGN(8);
         KEEP(*(.text.boot))
     } > SRAM_BOOT
 
     .text : {
-        *(.text .text.*)
+        . = ALIGN(8);
         *(.vectors)
+        *(.text .text.*)
+        *(.rodata .rodata.*)
     } > SRAM_TEXT
 
     .data : {
+        . = ALIGN(8);
+        _sdata = .;
         *(.data .data.*)
-        *(.rodata .rodata.*)
-        *(.bss .bss.*)
+        _edata = .;
     } > SRAM_DATA
 
-    _stack_top = ORIGIN(SRAM_DATA) + LENGTH(SRAM_DATA);
+    .bss : {
+        . = ALIGN(8);
+        _sbss = .;
+        *(.bss .bss.*)
+        *(COMMON)
+        _ebss = .;
+    } > SRAM_DATA
+
+    _stack_top = ALIGN(ORIGIN(SRAM_DATA) + LENGTH(SRAM_DATA) - 7, 16);
 }
